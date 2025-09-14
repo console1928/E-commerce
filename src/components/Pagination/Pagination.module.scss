@@ -1,0 +1,105 @@
+@import url('styles/variables.css');
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: var(--space-xl) 0;
+
+    .list {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .pageItem {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        transition: all 0.2s ease;
+    }
+
+    .pageLink {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: var(--space-xs) var(--space-s);
+        text-decoration: none;
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .navLink {
+        padding: var(--space-xs);
+    }
+
+    .active {
+        background-color: var(--brand);
+
+        .pageLink {
+            color: var(--button-text);
+            font-weight: 600;
+        }
+    }
+
+    .disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+
+        .pageLink {
+            pointer-events: none;
+        }
+    }
+
+    .ellipsisItem {
+        pointer-events: none;
+    }
+
+    .ellipsis {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 0 var(--space-xs);
+        color: var(--text-secondary);
+    }
+
+    .arrowLeft {
+        transform: rotate(180deg) translate(0, 5px);
+        fill: none;
+    }
+
+    .arrowRight {
+        fill: none;
+        transform: translate(0, 5px);
+    }
+
+    .arrowLeft,
+    .arrowRight {
+        transition: fill 0.2s ease;
+    }
+
+    @media (max-width: 480px) {
+        .pageItem {
+            min-width: 40px;
+            height: 40px;
+        }
+
+        .pageLink {
+            font-size: 14px;
+            padding: var(--space-xs);
+        }
+
+        .ellipsis {
+            padding: 0 var(--space-xxs);
+        }
+    }
+}

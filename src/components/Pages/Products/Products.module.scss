@@ -1,0 +1,88 @@
+@import url(styles/variables.css);
+
+.productsWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+}
+
+.info {
+    margin: 0 auto;
+    text-align: center;
+    max-width: 650px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .title {
+        margin: 0;
+    }
+
+    .content {
+        margin: 0;
+    }
+}
+
+.dropDown {
+    max-width: 300px;
+}
+
+.products {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.total {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+}
+
+.items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px 0;
+}
+
+.item {
+    flex: 0 33.33%;
+    max-width: 30%;
+}
+
+.pagination {
+    margin: 0 auto;
+}
+
+.searchWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.search {
+    display: flex;
+    gap: var(--space-xl);
+}
+
+.button {
+    width: 137px;
+}
+
+.loading,
+.error,
+.noResults {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    gap: var(--space-m);
+}
+
+.error {
+    button {
+        margin-top: var(--space-m);
+    }
+}
