@@ -9,6 +9,7 @@
 .headerWrapper {
     display: flex;
     justify-content: space-between;
+    height: 90px;
 }
 
 .logo {
@@ -26,6 +27,10 @@
     margin: auto 0;
     min-width: 350px;
 
+    @media (max-width: 768px) {
+        display: none;
+    }
+
     &List {
         padding: 0;
         display: flex;
@@ -33,7 +38,6 @@
         gap: 44px;
         list-style: none;
         margin: 0;
-        height: 90px;
     }
 
     &Item {

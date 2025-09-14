@@ -68,7 +68,7 @@
     gap: var(--space-xl);
     align-items: flex-start;
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
         flex-direction: column;
     }
 }
@@ -166,20 +166,11 @@
         gap: var(--space-m);
         flex-wrap: wrap;
         justify-content: space-between;
-
-        @media (max-width: 768px) {
-            justify-content: center;
-        }
     }
 
     .productItem {
         flex: 1;
         min-width: 250px;
         max-width: calc(33.333% - var(--space-m));
-
-        @media (max-width: 768px) {
-            max-width: 100%;
-            min-width: 280px;
-        }
     }
 }

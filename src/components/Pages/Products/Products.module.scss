@@ -25,6 +25,10 @@
 
 .dropDown {
     max-width: 300px;
+
+    @media (max-width: 768px) {
+        max-width: none;
+    }
 }
 
 .products {
@@ -43,12 +47,13 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 30px 0;
+    gap: var(--space-m);
 }
 
 .item {
     flex: 0 33.33%;
     max-width: 30%;
+    min-width: 300px;
 }
 
 .pagination {
@@ -67,7 +72,11 @@
 }
 
 .button {
-    width: 137px;
+    min-width: 130px;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 }
 
 .loading,
