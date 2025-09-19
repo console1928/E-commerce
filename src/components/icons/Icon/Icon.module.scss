@@ -1,18 +1,18 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as styles;
 
 .icon {
     display: inline-block;
     vertical-align: middle;
 
     &--primary {
-        color: var(--text-primary);
+        color: styles.$text-primary;
     }
 
     &--secondary {
-        color: var(--text-secondary);
+        color: styles.$text-secondary;
     }
 
     &--accent {
-        color: var(--text-accent);
+        color: styles.$text-accent;
     }
 }

@@ -1,14 +1,14 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as styles;
 
 .pagination {
     display: flex;
     justify-content: center;
-    margin: var(--space-xl) 0;
+    margin: styles.$space-xl 0;
 
-    .list {
+    &__list {
         display: flex;
         align-items: center;
-        gap: var(--space-xs);
+        gap: styles.$space-xs;
         list-style: none;
         margin: 0;
         padding: 0;
@@ -18,7 +18,7 @@
         }
     }
 
-    .pageItem {
+    &__item {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -27,83 +27,78 @@
         transition: all 0.2s ease;
     }
 
-    .pageLink {
+    &__link {
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
         height: 100%;
-        padding: var(--space-xs) var(--space-s);
+        padding: styles.$space-xs styles.$space-s;
         text-decoration: none;
-        color: var(--text-primary);
+        color: styles.$text-primary;
         font-size: 16px;
         font-weight: 500;
         transition: all 0.2s ease;
     }
 
-    .navLink {
-        padding: var(--space-xs);
+    &__nav-link {
+        padding: styles.$space-xs;
     }
 
-    .active {
-        background-color: var(--brand);
+    &__active {
+        background-color: styles.$brand;
 
-        .pageLink {
-            color: var(--button-text);
+        .pagination__link {
+            color: styles.$button-text;
             font-weight: 600;
         }
     }
 
-    .disabled {
+    &__disabled {
         cursor: not-allowed;
         opacity: 0.5;
 
-        .pageLink {
+        .pagination__link {
             pointer-events: none;
         }
     }
 
-    .ellipsisItem {
+    &__ellipsis {
         pointer-events: none;
     }
 
-    .ellipsis {
+    &__ellipsis {
         display: flex;
         align-items: center;
         justify-content: center;
         height: 100%;
-        padding: 0 var(--space-xs);
-        color: var(--text-secondary);
+        padding: 0 styles.$space-xs;
+        color: styles.$text-secondary;
     }
 
-    .arrowLeft {
-        transform: rotate(180deg) translate(0, 5px);
-        fill: none;
-    }
-
-    .arrowRight {
+    &__arrow {
         fill: none;
         transform: translate(0, 5px);
-    }
-
-    .arrowLeft,
-    .arrowRight {
         transition: fill 0.2s ease;
     }
 
+    &__arrow-left:first-child {
+        transform: rotate(180deg) translate(0, 5px);
+    }
+
     @media (max-width: 480px) {
-        .pageItem {
+        &__item {
             min-width: 20px;
             height: 40px;
         }
 
-        .pageLink {
+        &__link {
             font-size: 14px;
-            padding: var(--space-xs);
+            padding: styles.$space-xs;
         }
 
-        .ellipsis {
-            padding: 0 var(--space-xxs);
+        &__ellipsis {
+            padding: 0 styles.$space-xxs;
         }
     }
 }

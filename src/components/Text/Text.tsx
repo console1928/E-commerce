@@ -30,12 +30,12 @@ const Text: React.FC<TextProps> = ({
   ...rest
 }) => {
   const classes = classNames(
-    styles.text, // Использование стилей из модуля
+    styles.text,
     {
-      [styles[`text--view-${view}`]]: view,
-      [styles[`text--weight-${weight}`]]: weight,
-      [styles[`text--color-${color}`]]: color,
-      [styles['text--maxLines']]: maxLines,
+      [styles[`text__view__${view}`]]: view,
+      [styles[`text__weight__${weight}`]]: weight,
+      [styles[`text__color__${color}`]]: color,
+      [styles['text__multiline']]: maxLines,
     },
     className
   );

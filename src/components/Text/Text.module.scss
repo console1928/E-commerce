@@ -1,65 +1,65 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as styles;
 
 .text {
   color: inherit;
 
-  &--view {
-    &-title {
+  &__view {
+    &__title {
       font-size: 44px;
       font-weight: 700;
     }
 
-    &-button {
+    &__button {
       font-size: 18px;
       font-weight: 400;
     }
 
-    &-p-20 {
+    &__p-20 {
       font-size: 20px;
     }
 
-    &-p-18 {
+    &__p-18 {
       font-size: 18px;
     }
 
-    &-p-16 {
+    &__p-16 {
       font-size: 16px;
     }
 
-    &-p-14 {
+    &__p-14 {
       font-size: 14px;
     }
   }
 
-  &--weight {
-    &-normal {
+  &__weight {
+    &__normal {
       font-weight: 400;
     }
 
-    &-medium {
+    &__medium {
       font-weight: 500;
     }
 
-    &-bold {
+    &__bold {
       font-weight: 700;
     }
   }
 
-  &--color {
-    &-primary {
-      color: var(--text-primary);
+  &__color {
+    &__primary {
+      color: styles.$text-primary;
     }
 
-    &-secondary {
-      color: var(--text-secondary);
+    &__secondary {
+      color: styles.$text-secondary;
     }
 
-    &-accent {
-      color: var(--text-accent);
+    &__accent {
+      color: styles.$text-accent;
     }
   }
 
-  &--maxLines {
+  &__multiline {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;

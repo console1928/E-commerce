@@ -1,43 +1,43 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as styles;
 
-.multiDropdown {
+.multi-dropdown {
     position: relative;
     width: 100%;
 
     &__options,
-    &__noOptions {
+    &__no-options {
         position: absolute;
         top: 100%;
         left: 0;
         right: 0;
         max-height: 200px;
         overflow-y: auto;
-        background: var(--background);
-        box-shadow: var(--box-shadow);
+        background: styles.$background;
+        box-shadow: styles.$box-shadow;
         z-index: 1000;
-        margin-top: var(--space-xss);
+        margin-top: styles.$space-xss;
         padding: 0;
     }
 
-    &__noOptions {
-        padding: var(--space-s);
+    &__no-options {
+        padding: styles.$space-s;
     }
 
     &__option {
         display: flex;
         align-items: center;
-        padding: var(--space-s);
-        color: var(--text-primary);
+        padding: styles.$space-s;
+        color: styles.$text-primary;
         font-size: 16px;
         font-family: sans-serif;
         cursor: pointer;
 
         &:hover {
-            color: var(--text-secondary);
+            color: styles.$text-secondary;
         }
 
         &--selected {
-            color: var(--brand);
+            color: styles.$brand;
         }
     }
 

@@ -1,8 +1,5 @@
-@import url('styles/variables.css');
-
-
 :root {
-  background-color: var(--products-page-background-color);
+  background-color: #FAFAFA;
   font-family: sans-serif;
 }
 
@@ -25,5 +22,5 @@ a,
 a:hover,
 a:active {
   text-decoration: none;
-  color: var(--text-primary);
+  color: #000000;
 }

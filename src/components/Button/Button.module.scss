@@ -1,15 +1,15 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as v;
 
-.button {
+.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     height: 52px;
-    padding-left: var(--space-l);
-    padding-right: var(--space-l);
+    padding-left: v.$space-l;
+    padding-right: v.$space-l;
     border: none;
-    background-color: var(--brand);
-    color: var(--button-text);
+    background-color: v.$brand;
+    color: v.$button-text;
     font-size: 18px;
     font-weight: 400;
     cursor: pointer;
@@ -17,12 +17,12 @@
     font-family: sans-serif;
     letter-spacing: 0.035rem;
 
-    &:hover:not(.button--disabled):not(.button--loading) {
-        background-color: var(--brand-hover);
+    &:hover:not(.btn--disabled):not(.btn--loading) {
+        background-color: v.$brand-hover;
     }
 
     &--disabled {
-        background-color: var(--disabled);
+        background-color: v.$disabled;
         cursor: not-allowed;
     }
 

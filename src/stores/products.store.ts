@@ -1,6 +1,10 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import axios from 'axios';
 
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
+const API_PRODUCTS = import.meta.env.VITE_API_PRODUCTS;
+const API_PRODUCTS_CATEGORIES = import.meta.env.VITE_API_PRODUCTS_CATEGORIES;
+
 export interface ProductImage {
     id?: number;
     url: string;
@@ -61,8 +65,8 @@ class ProductsStore {
     error: string | null = null;
 
     readonly PRODUCTS_PER_PAGE = 9;
-    readonly BASE_API_URL = 'https://front-school-strapi.ktsdev.ru/api/products';
-    readonly CATEGORIES_API_URL = 'https://front-school-strapi.ktsdev.ru/api/product-categories';
+    readonly API_PRODUCTS_URL = `${BASE_API_URL}/${API_PRODUCTS}`;
+    readonly API_CATEGORIES_URL = `${BASE_API_URL}/${API_PRODUCTS_CATEGORIES}`;
 
     constructor() {
         makeAutoObservable(this);
@@ -86,7 +90,7 @@ class ProductsStore {
 
     fetchCategories = async () => {
         try {
-            const response = await axios.get(this.CATEGORIES_API_URL);
+            const response = await axios.get(this.API_CATEGORIES_URL);
             const categoriesData = response.data.data.map((cat: any) => ({
                 id: cat.id,
                 title: cat.title || 'Unnamed Category'
@@ -107,7 +111,7 @@ class ProductsStore {
                 this.error = null;
             });
 
-            let apiUrl = `${this.BASE_API_URL}?populate[0]=images&populate[1]=productCategory`;
+            let apiUrl = `${this.API_PRODUCTS_URL}?populate[0]=images&populate[1]=productCategory`;
 
             if (searchTerm.trim()) {
                 apiUrl += `&filters[title][$containsi]=${encodeURIComponent(searchTerm)}`;
