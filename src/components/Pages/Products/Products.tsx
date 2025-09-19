@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
+import qs from 'qs';
 import Card from 'components/Card';
 import Button from 'components/Button';
 import Input from 'components/Input';
@@ -59,11 +61,19 @@ export type CategoryOption = Option & {
     categoryId: number;
 };
 
+export type QueryParams = {
+    search?: string;
+    categories?: string;
+    page?: string;
+};
+
 const PRODUCTS_PER_PAGE = 9;
 const BASE_API_URL = 'https://front-school-strapi.ktsdev.ru/api/products';
 const CATEGORIES_API_URL = 'https://front-school-strapi.ktsdev.ru/api/product-categories';
 
 function Products() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [searchValue, setSearchValue] = useState<string>('');
     const [filteredProducts, setFilteredProducts] = useState<ProductData[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -73,6 +83,55 @@ function Products() {
     const [error, setError] = useState<string | null>(null);
     const [selectedFilters, setSelectedFilters] = useState<CategoryOption[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+
+    useEffect(() => {
+        const queryParams = qs.parse(location.search, { ignoreQueryPrefix: true }) as QueryParams;
+
+        if (queryParams.search) {
+            setSearchValue(queryParams.search);
+        }
+
+        if (queryParams.page) {
+            setCurrentPage(Number(queryParams.page));
+        }
+
+        if (queryParams.categories && categories.length > 0) {
+            const categoryIds = queryParams.categories.split(',').map(Number);
+            const filters = categories
+                .filter(cat => categoryIds.includes(cat.id))
+                .map(cat => ({
+                    key: cat.id.toString(),
+                    value: cat.title,
+                    categoryId: cat.id
+                }));
+            setSelectedFilters(filters);
+        }
+    }, [location.search, categories]);
+
+    const updateQueryParams = useCallback((params: {
+        search?: string;
+        categories?: number[];
+        page?: number;
+    }) => {
+        const queryParams = qs.parse(location.search, { ignoreQueryPrefix: true }) as QueryParams;
+
+        if (params.search !== undefined) {
+            queryParams.search = params.search || undefined;
+        }
+
+        if (params.categories !== undefined) {
+            queryParams.categories = params.categories.length > 0
+                ? params.categories.join(',')
+                : undefined;
+        }
+
+        if (params.page !== undefined) {
+            queryParams.page = params.page > 1 ? params.page.toString() : undefined;
+        }
+
+        const newSearch = qs.stringify(queryParams, { skipNulls: true });
+        navigate(`${location.pathname}?${newSearch}`, { replace: true });
+    }, [location, navigate]);
 
     const categoryOptions = useMemo((): CategoryOption[] => {
         return categories.map(category => ({
@@ -144,12 +203,14 @@ function Products() {
         if (searchValue.trim()) {
             setIsSearching(true);
             const categoryIds = selectedFilters.map(filter => filter.categoryId);
+            updateQueryParams({ search: searchValue, categories: categoryIds, page: 1 });
             fetchProducts(searchValue, categoryIds);
         } else {
             const categoryIds = selectedFilters.map(filter => filter.categoryId);
+            updateQueryParams({ search: '', categories: categoryIds, page: 1 });
             fetchProducts('', categoryIds);
         }
-    }, [searchValue, selectedFilters, fetchProducts]);
+    }, [searchValue, selectedFilters, fetchProducts, updateQueryParams]);
 
     const handleFilterChange = useCallback((filters: Option[]) => {
         const categoryFilters = filters as CategoryOption[];
@@ -157,13 +218,29 @@ function Products() {
 
         setIsFiltering(true);
         const categoryIds = categoryFilters.map(filter => filter.categoryId);
+        updateQueryParams({ search: searchValue, categories: categoryIds, page: 1 });
         fetchProducts(searchValue, categoryIds);
-    }, [searchValue, fetchProducts]);
+    }, [searchValue, fetchProducts, updateQueryParams]);
+
+    const handlePageChange = useCallback((pageNumber: number) => {
+        setCurrentPage(pageNumber);
+        updateQueryParams({ page: pageNumber });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [updateQueryParams]);
 
     useEffect(() => {
         fetchCategories();
-        fetchProducts();
-    }, [fetchCategories, fetchProducts]);
+    }, [fetchCategories]);
+
+    useEffect(() => {
+        const queryParams = qs.parse(location.search, { ignoreQueryPrefix: true }) as QueryParams;
+        const searchTerm = queryParams.search || '';
+        const categoryIds = queryParams.categories
+            ? queryParams.categories.split(',').map(Number)
+            : [];
+
+        fetchProducts(searchTerm, categoryIds);
+    }, [location.search, fetchProducts]);
 
     const paginatedProducts = useMemo(() => {
         const lastIndex = currentPage * PRODUCTS_PER_PAGE;
@@ -175,11 +252,6 @@ function Products() {
 
     const handleSearchChange = (value: string) => {
         setSearchValue(value);
-    };
-
-    const handlePageChange = (pageNumber: number) => {
-        setCurrentPage(pageNumber);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleRetry = () => {

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import ArrowRightIcon from 'components/icons/ArrowRightIcon';
 import Text from 'components/Text';
 import Button from 'components/Button';
@@ -29,6 +29,7 @@ export type RelatedProduct = {
 const API_BASE_URL = 'https://front-school-strapi.ktsdev.ru/api/products';
 
 const Product = () => {
+    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [product, setProduct] = useState<ProductType | null>(null);
     const [relatedItems, setRelatedItems] = useState<RelatedProduct[]>([]);
@@ -120,20 +121,18 @@ const Product = () => {
 
     return (
         <div className={`${classes.productWrapper} wrapper`}>
-            <Link to="/" className={classes.backLink}>
-                <div className={classes.backBtn}>
-                    <div className={classes.icon}>
-                        <ArrowRightIcon
-                            className={classes.backIcon}
-                            width={32}
-                            height={32}
-                            viewBox="0 0 24 24"
-                            color="primary"
-                        />
-                    </div>
-                    <div className={classes.text}>Назад</div>
+            <div className={classes.backBtn} onClick={() => navigate(-1)}>
+                <div className={classes.icon}>
+                    <ArrowRightIcon
+                        className={classes.backIcon}
+                        width={32}
+                        height={32}
+                        viewBox="0 0 24 24"
+                        color="primary"
+                    />
                 </div>
-            </Link>
+                <div className={classes.text}>Назад</div>
+            </div>
 
             <div className={classes.productContainer}>
                 <div className={classes.container}>

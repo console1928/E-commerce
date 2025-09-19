@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import qs from 'qs';
 import ArrowRightIcon from 'components/icons/ArrowRightIcon';
 import classes from './Pagination.module.scss';
 
@@ -20,6 +21,13 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
     const location = useLocation();
     const totalPages = Math.ceil(totalProducts / productsPerPage);
+
+    const generatePageUrl = (pageNumber: number) => {
+        const queryParams = qs.parse(location.search, { ignoreQueryPrefix: true });
+        queryParams.page = pageNumber > 1 ? pageNumber.toString() : undefined;
+        const newSearch = qs.stringify(queryParams, { skipNulls: true });
+        return `${location.pathname}?${newSearch}`;
+    };
 
     const pageNumbers = useMemo(() => {
         if (totalPages <= 1) return [];
@@ -86,7 +94,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <ul className={classes.list}>
                 <li className={classes.pageItem}>
                     <Link
-                        to={location.pathname}
+                        to={generatePageUrl(currentPage - 1)}
                         className={`${classes.pageLink} ${classes.navLink} ${isPreviousDisabled ? classes.disabled : ''}`}
                         onClick={handlePreviousClick}
                         aria-label="Go to previous page"
@@ -124,7 +132,7 @@ const Pagination: React.FC<PaginationProps> = ({
                             key={number}
                         >
                             <Link
-                                to={location.pathname}
+                                to={generatePageUrl(number)}
                                 className={classes.pageLink}
                                 onClick={(e) => handlePageClick(number, e)}
                                 aria-label={`Go to page ${number}`}
@@ -138,7 +146,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
                 <li className={classes.pageItem}>
                     <Link
-                        to={location.pathname}
+                        to={generatePageUrl(currentPage + 1)}
                         className={`${classes.pageLink} ${classes.navLink} ${isNextDisabled ? classes.disabled : ''}`}
                         onClick={handleNextClick}
                         aria-label="Go to next page"
