@@ -1,256 +1,160 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import axios from 'axios';
-import Card from 'components/Card';
-import Button from 'components/Button';
-import Input from 'components/Input';
-import Text from 'components/Text';
-import MultiDropdown, { Option } from 'components/MultiDropdown';
-import Pagination from 'components/Pagination';
-import classes from './Products.module.scss';
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import qs from 'qs';
+import { productsStore } from 'stores/products.store';
+import { CategoryOption } from 'stores/products.store';
+import ProductsHeader from './ProductsHeader';
+import ProductsSearch from './ProductsSearch';
+import ProductsContent from './ProductsContent';
+import { Option } from 'components/MultiDropdown';
+import styles from './Products.module.scss';
 
-export type ProductData = {
-    id: number;
-    title: string;
-    contentSlot: number;
-    subTitle: string;
-    images: string[];
-    captionSlot: string;
-};
+const Products = observer(() => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const {
+        searchValue,
+        setSearchValue,
+        currentPage,
+        setCurrentPage,
+        isLoading,
+        isSearching,
+        isFiltering,
+        error,
+        selectedFilters,
+        setSelectedFilters,
+        categories,
+        categoryOptions,
+        filteredProducts,
+        paginatedProducts,
+        totalPages,
+        fetchCategories,
+        fetchProducts,
+        searchProducts,
+        filterProducts,
+        syncWithQueryParams
+    } = productsStore;
 
-export type ProductType = {
-    id: number;
-    title: string;
-    price: number;
-    category: { name: string };
-    description: string;
-    images: string[];
-};
-
-export type FilterOption = Option & {
-    category: string;
-};
-
-const PRODUCTS_PER_PAGE = 9;
-const API_URL = 'https://api.escuelajs.co/api/v1/products';
-
-function Products() {
-    const [searchValue, setSearchValue] = useState<string>('');
-    const [products, setProducts] = useState<ProductData[]>([]);
-    const [filteredProducts, setFilteredProducts] = useState<ProductData[]>([]);
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [selectedFilters, setSelectedFilters] = useState<Option[]>([]);
-
-    const categoryOptions = useMemo((): Option[] => {
-        const categories = Array.from(new Set(products.map(product => product.captionSlot)));
-        return categories.map(category => ({
-            key: category,
-            value: category,
-        }));
-    }, [products]);
-
-    const filterProducts = useCallback(() => {
-        let filtered = products;
-
-        if (searchValue) {
-            filtered = filtered.filter(product =>
-                product.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-                product.subTitle.toLowerCase().includes(searchValue.toLowerCase())
-            );
-        }
-
-        if (selectedFilters.length > 0) {
-            const selectedCategories = selectedFilters.map(filter => filter.value);
-            filtered = filtered.filter(product =>
-                selectedCategories.includes(product.captionSlot)
-            );
-        }
-
-        setFilteredProducts(filtered);
-        setCurrentPage(1);
-    }, [products, searchValue, selectedFilters]);
-
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-
-                const response = await axios.get<ProductType[]>(API_URL, {
-                    timeout: 10000,
-                });
-
-                const formattedProducts: ProductData[] = response.data.map((raw: ProductType) => ({
-                    id: raw.id,
-                    title: raw.title,
-                    contentSlot: raw.price,
-                    captionSlot: raw.category.name,
-                    images: raw.images.filter(img => img),
-                    subTitle: raw.description,
-                }));
-
-                setProducts(formattedProducts);
-                setFilteredProducts(formattedProducts);
-            } catch (err) {
-                setError(axios.isAxiosError(err)
-                    ? `Failed to load products: ${err.message}`
-                    : 'An unexpected error occurred'
-                );
-                console.error('Error fetching products:', err);
-            } finally {
-                setIsLoading(false);
-            }
+    const updateQueryParams = (params: {
+        search?: string;
+        categories?: number[];
+        page?: number;
+    }) => {
+        const queryParams = qs.parse(location.search, { ignoreQueryPrefix: true }) as {
+            search?: string;
+            categories?: string;
+            page?: string;
         };
 
-        fetchProducts();
-    }, []);
+        if (params.search !== undefined) {
+            queryParams.search = params.search || undefined;
+        }
 
-    useEffect(() => {
-        filterProducts();
-    }, [filterProducts]);
+        if (params.categories !== undefined) {
+            queryParams.categories = params.categories.length > 0
+                ? params.categories.join(',')
+                : undefined;
+        }
 
-    const paginatedProducts = useMemo(() => {
-        const lastIndex = currentPage * PRODUCTS_PER_PAGE;
-        const firstIndex = lastIndex - PRODUCTS_PER_PAGE;
-        return filteredProducts.slice(firstIndex, lastIndex);
-    }, [filteredProducts, currentPage]);
+        if (params.page !== undefined) {
+            queryParams.page = params.page > 1 ? params.page.toString() : undefined;
+        }
 
-    const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+        const newSearch = qs.stringify(queryParams, { skipNulls: true });
+        navigate(`${location.pathname}?${newSearch}`, { replace: true });
+    };
 
-    const handleSearchChange = (value: string) => {
-        setSearchValue(value);
+    const handleSearch = () => {
+        const categoryIds = selectedFilters.map(filter => filter.categoryId);
+        updateQueryParams({
+            search: searchValue.trim(),
+            categories: categoryIds,
+            page: 1
+        });
+        searchProducts();
     };
 
     const handleFilterChange = (filters: Option[]) => {
-        setSelectedFilters(filters);
+        const categoryFilters = filters as CategoryOption[];
+        setSelectedFilters(categoryFilters);
+
+        const categoryIds = categoryFilters.map(filter => filter.categoryId);
+        updateQueryParams({
+            search: searchValue,
+            categories: categoryIds,
+            page: 1
+        });
+        filterProducts(categoryFilters);
     };
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
+        updateQueryParams({ page: pageNumber });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleSearchChange = (value: string) => {
+        setSearchValue(value);
     };
 
     const handleRetry = () => {
         window.location.reload();
     };
 
-    const renderContent = () => {
-        if (isLoading) {
-            return (
-                <div className={classes.loading}>
-                    <Text view="p-20" color="secondary">Loading products...</Text>
-                </div>
-            );
-        }
+    useEffect(() => {
+        const queryParams = qs.parse(location.search, { ignoreQueryPrefix: true }) as {
+            search?: string;
+            categories?: string;
+            page?: string;
+        };
 
-        if (error) {
-            return (
-                <div className={classes.error}>
-                    <Text view="p-20" color="secondary">{error}</Text>
-                    <Button onClick={handleRetry}>Try Again</Button>
-                </div>
-            );
+        syncWithQueryParams(queryParams);
+
+        if (categories.length === 0) {
+            fetchCategories();
         }
 
         if (filteredProducts.length === 0) {
-            return (
-                <div className={classes.noResults}>
-                    <Text view="p-20" color="secondary">
-                        {searchValue || selectedFilters.length > 0
-                            ? 'No products found matching your criteria'
-                            : 'No products available'
-                        }
-                    </Text>
-                </div>
-            );
+            const searchTerm = queryParams.search || '';
+            const categoryIds = queryParams.categories
+                ? queryParams.categories.split(',').map(Number)
+                : [];
+            fetchProducts(searchTerm, categoryIds);
         }
-
-        return (
-            <>
-                <div className={classes.total}>
-                    <Text view="p-20" weight="bold">
-                        Total Products
-                    </Text>
-                    <Text view="p-20" weight="bold" color="accent">
-                        {filteredProducts.length}
-                    </Text>
-                </div>
-
-                <div className={classes.items}>
-                    {paginatedProducts.map((product) => (
-                        <Card
-                            url={`/product/${product.id}`}
-                            className={classes.item}
-                            key={product.id}
-                            title={product.title}
-                            image={product.images[0] || '/placeholder-image.jpg'}
-                            subtitle={product.subTitle}
-                            captionSlot={product.captionSlot}
-                            contentSlot={`$${product.contentSlot}`}
-                            actionSlot={<Button>Add to cart</Button>}
-                        />
-                    ))}
-                </div>
-
-                {totalPages > 1 && (
-                    <div className={classes.pagination}>
-                        <Pagination
-                            productsPerPage={PRODUCTS_PER_PAGE}
-                            totalProducts={filteredProducts.length}
-                            paginate={handlePageChange}
-                            currentPage={currentPage}
-                        />
-                    </div>
-                )}
-            </>
-        );
-    };
+    }, [location.search]);
 
     return (
-        <div className={`${classes.productsWrapper} wrapper`}>
-            <div className={classes.info}>
-                <Text className={classes.title} color="primary" view="title">
-                    Products
-                </Text>
-                <Text className={classes.content} color="secondary" view="p-20">
-                    We display products based on the latest products we have, if you want<br />
-                    to see our old products please enter the name of the item
-                </Text>
-            </div>
+        <div className={`${styles.productsWrapper} wrapper`}>
+            <ProductsHeader />
 
-            <div className={classes.searchWrapper}>
-                <div className={classes.search}>
-                    <Input
-                        value={searchValue}
-                        onChange={handleSearchChange}
-                        placeholder="Search Product"
-                        disabled={isLoading}
-                    />
-                    <Button
-                        className={classes.button}
-                        loading={isLoading}
-                        onClick={filterProducts}
-                    >
-                        Find Now
-                    </Button>
-                </div>
+            <ProductsSearch
+                searchValue={searchValue}
+                onSearchChange={handleSearchChange}
+                onSearch={handleSearch}
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+                categoryOptions={categoryOptions}
+                isLoading={isLoading}
+                isSearching={isSearching}
+                isFiltering={isFiltering}
+                categories={categories}
+            />
 
-                <MultiDropdown
-                    className={classes.dropDown}
-                    value={selectedFilters}
-                    getTitle={(filters) => filters.length > 0 ? `${filters.length} selected` : 'Filter'}
-                    onChange={handleFilterChange}
-                    options={categoryOptions}
-                    disabled={isLoading || products.length === 0}
-                />
-            </div>
-
-            <div className={classes.products}>
-                {renderContent()}
-            </div>
+            <ProductsContent
+                isLoading={isLoading}
+                error={error}
+                filteredProducts={filteredProducts}
+                paginatedProducts={paginatedProducts}
+                totalPages={totalPages}
+                searchValue={searchValue}
+                selectedFilters={selectedFilters}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+                onRetry={handleRetry}
+            />
         </div>
     );
-}
+});
 
 export default Products;

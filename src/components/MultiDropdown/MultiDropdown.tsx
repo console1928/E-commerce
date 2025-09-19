@@ -84,10 +84,10 @@ const MultiDropdown: React.FC<MultiDropdownProps> = ({
   }, [value, getTitle]);
 
   return (
-    <div className={classNames(styles.multiDropdown, className)}>
+    <div className={classNames(styles['multi-dropdown'], className)}>
       <div onClick={handleToggleDropDown}>
         <Input
-          className={styles.multiDropdown__input}
+          className={styles['multi-dropdown__input']}
           ref={inputRef}
           onChange={handleInputChange}
           afterSlot={<ArrowDownIcon color="secondary" />}
@@ -96,33 +96,29 @@ const MultiDropdown: React.FC<MultiDropdownProps> = ({
           disabled={disabled}
         />
       </div>
-      {isOpen && !disabled && (
-        <React.Fragment>
-          {filteredOptions.length === 0 ? (
-            <div className={styles.multiDropdown__noOptions}>
-              Nothing found
-            </div>
-          ) : (
-            <div className={styles.multiDropdown__options} ref={dropdownRef}>
-              {filteredOptions.map((option) => {
-                const isSelected = value.some(item => item.key === option.key);
+      {isOpen && !disabled && (filteredOptions.length === 0 ? (
+        <div className={styles['multi-dropdown__no-options']}>
+          Nothing found
+        </div>
+      ) : (
+        <div className={styles['multi-dropdown__options']} ref={dropdownRef}>
+          {filteredOptions.map((option) => {
+            const isSelected = value.some(item => item.key === option.key);
 
-                return (
-                  <div
-                    key={option.key}
-                    className={classNames(styles.multiDropdown__option, {
-                      [styles['multiDropdown__option--selected']]: isSelected,
-                    })}
-                    onClick={() => handleOptionClick(option)}
-                  >
-                    {option.value}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </React.Fragment>
-      )}
+            return (
+              <div
+                key={option.key}
+                className={classNames(styles['multi-dropdown__option'], {
+                  [styles['multi-dropdown__option--selected']]: isSelected,
+                })}
+                onClick={() => handleOptionClick(option)}
+              >
+                {option.value}
+              </div>
+            )
+          })}
+        </div>
+      ))}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as styles;
 
 .checkbox {
     display: inline-flex;
@@ -7,14 +7,14 @@
     user-select: none;
     width: 40px;
     height: 40px;
-    background-color: var(--background);
+    background-color: styles.$background;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
 
     &:hover:not(.checkbox--disabled) {
-        border: 1px solid var(--brand);
+        border: 1px solid styles.$brand;
     }
 
     &--disabled {

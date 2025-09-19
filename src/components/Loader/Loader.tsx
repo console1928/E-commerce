@@ -23,7 +23,7 @@ const Loader: React.FC<LoaderProps> = ({ size = 'l', className = '' }) => {
     const spinnerClass = classNames(
         styles.loader__spinner,
         {
-            [styles.button__spinner]: className?.includes('button__loader'),
+            [styles['loader__spinner--button']]: className?.includes('button__loader'),
         }
     );
 

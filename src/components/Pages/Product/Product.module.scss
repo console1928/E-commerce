@@ -1,4 +1,4 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as styles;
 
 .load {
     width: 60px;
@@ -15,25 +15,16 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--space-m);
+    gap: styles.$space-m;
     height: calc(100vh - 190px);
     text-align: center;
-}
-
-.backLink {
-    text-decoration: none;
-    color: inherit;
-
-    &:hover {
-        opacity: 0.8;
-    }
 }
 
 .backBtn {
     margin-bottom: 32px;
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
+    gap: styles.$space-xs;
     max-width: 130px;
     cursor: pointer;
     transition: opacity 0.2s ease;
@@ -60,12 +51,12 @@
 .productContainer {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
+    gap: styles.$space-xl;
 }
 
 .container {
     display: flex;
-    gap: var(--space-xl);
+    gap: styles.$space-xl;
     align-items: flex-start;
 
     @media (max-width: 1024px) {
@@ -100,7 +91,7 @@
     .contentText {
         display: flex;
         flex-direction: column;
-        gap: var(--space-m);
+        gap: styles.$space-m;
     }
 
     .contentTitle {
@@ -116,19 +107,19 @@
 .actionContainer {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
+    gap: styles.$space-xl;
     max-width: 340px;
 
     .price {
         font-size: 44px;
         line-height: 48px;
         font-weight: 700;
-        color: var(--text-primary);
+        color: styles.$text-primary;
     }
 
     .btns {
         display: flex;
-        gap: var(--space-m);
+        gap: styles.$space-m;
         flex-wrap: wrap;
 
         .buyBtn {
@@ -137,15 +128,15 @@
         }
 
         .addBtn {
-            background-color: var(--background);
-            color: var(--text-primary);
-            border: 1px solid var(--text-secondary);
+            background-color: styles.$background;
+            color: styles.$text-primary;
+            border: 1px solid styles.$text-secondary;
             flex: 1;
             min-width: 120px;
 
             &:hover {
-                color: var(--button-text);
-                background-color: var(--text-secondary);
+                color: styles.$button-text;
+                background-color: styles.$text-secondary;
             }
         }
     }
@@ -155,7 +146,7 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
-    margin-top: var(--space-xl);
+    margin-top: styles.$space-xl;
 
     .relatedItemText {
         margin: 0;
@@ -163,7 +154,7 @@
 
     .relatedItems {
         display: flex;
-        gap: var(--space-m);
+        gap: styles.$space-m;
         flex-wrap: wrap;
         justify-content: space-between;
     }
@@ -171,6 +162,6 @@
     .productItem {
         flex: 1;
         min-width: 250px;
-        max-width: calc(33.333% - var(--space-m));
+        max-width: calc(33.333% - styles.$space-m);
     }
 }

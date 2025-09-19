@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import qs from 'qs';
 import ArrowRightIcon from 'components/icons/ArrowRightIcon';
-import classes from './Pagination.module.scss';
+import styles from './Pagination.module.scss';
 
 export type PaginationProps = {
     productsPerPage: number;
@@ -20,6 +21,13 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
     const location = useLocation();
     const totalPages = Math.ceil(totalProducts / productsPerPage);
+
+    const generatePageUrl = (pageNumber: number) => {
+        const queryParams = qs.parse(location.search, { ignoreQueryPrefix: true });
+        queryParams.page = pageNumber > 1 ? pageNumber.toString() : undefined;
+        const newSearch = qs.stringify(queryParams, { skipNulls: true });
+        return `${location.pathname}?${newSearch}`;
+    };
 
     const pageNumbers = useMemo(() => {
         if (totalPages <= 1) return [];
@@ -82,19 +90,19 @@ const Pagination: React.FC<PaginationProps> = ({
     const isNextDisabled = currentPage >= totalPages;
 
     return (
-        <nav className={classes.pagination} aria-label="Product pagination">
-            <ul className={classes.list}>
-                <li className={classes.pageItem}>
+        <nav className={styles.pagination} aria-label="Product pagination">
+            <ul className={styles.pagination__list}>
+                <li className={styles.pagination__item}>
                     <Link
-                        to={location.pathname}
-                        className={`${classes.pageLink} ${classes.navLink} ${isPreviousDisabled ? classes.disabled : ''}`}
+                        to={generatePageUrl(currentPage - 1)}
+                        className={`${styles.pagination__link} ${['styles.pagination__nav-link']} ${isPreviousDisabled ? styles.pagination__disabled : ''}`}
                         onClick={handlePreviousClick}
                         aria-label="Go to previous page"
                         aria-disabled={isPreviousDisabled}
                         tabIndex={isPreviousDisabled ? -1 : undefined}
                     >
                         <ArrowRightIcon
-                            className={classes.arrowLeft}
+                            className={`${styles['pagination__arrow']} ${styles['pagination__arrow-left']}`}
                             color={isPreviousDisabled ? 'secondary' : 'primary'}
                             width={44}
                             height={44}
@@ -108,11 +116,11 @@ const Pagination: React.FC<PaginationProps> = ({
                     if (number === null) {
                         return (
                             <li
-                                className={`${classes.pageItem} ${classes.ellipsisItem}`}
+                                className={`${styles.pagination__item} ${styles.pagination__ellipsis}`}
                                 key={`ellipsis-${index}`}
                                 aria-hidden="true"
                             >
-                                <span className={classes.ellipsis}>…</span>
+                                <span className={styles.pagination__ellipsis}>…</span>
                             </li>
                         );
                     }
@@ -120,12 +128,12 @@ const Pagination: React.FC<PaginationProps> = ({
                     const isActive = number === currentPage;
                     return (
                         <li
-                            className={`${classes.pageItem} ${isActive ? classes.active : ''}`}
+                            className={`${styles.pagination__item} ${isActive ? styles.pagination__active : ''}`}
                             key={number}
                         >
                             <Link
-                                to={location.pathname}
-                                className={classes.pageLink}
+                                to={generatePageUrl(number)}
+                                className={styles.pagination__link}
                                 onClick={(e) => handlePageClick(number, e)}
                                 aria-label={`Go to page ${number}`}
                                 aria-current={isActive ? 'page' : undefined}
@@ -136,17 +144,17 @@ const Pagination: React.FC<PaginationProps> = ({
                     );
                 })}
 
-                <li className={classes.pageItem}>
+                <li className={styles.pagination__item}>
                     <Link
-                        to={location.pathname}
-                        className={`${classes.pageLink} ${classes.navLink} ${isNextDisabled ? classes.disabled : ''}`}
+                        to={generatePageUrl(currentPage + 1)}
+                        className={`${styles.pagination__link} ${styles['pagination__nav-link']} ${isNextDisabled ? styles.pagination__disabled : ''}`}
                         onClick={handleNextClick}
                         aria-label="Go to next page"
                         aria-disabled={isNextDisabled}
                         tabIndex={isNextDisabled ? -1 : undefined}
                     >
                         <ArrowRightIcon
-                            className={classes.arrowRight}
+                            className={styles.pagination__arrow}
                             color={isNextDisabled ? 'secondary' : 'primary'}
                             width={44}
                             height={44}

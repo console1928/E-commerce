@@ -1,4 +1,4 @@
-@import url(styles/variables.css);
+@use 'styles/variables' as styles;
 
 .productsWrapper {
     display: flex;
@@ -40,14 +40,14 @@
 .total {
     display: flex;
     align-items: center;
-    gap: var(--space-m);
+    gap: styles.$space-m;
 }
 
 .items {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: var(--space-m);
+    gap: styles.$space-m;
 }
 
 .item {
@@ -63,12 +63,12 @@
 .searchWrapper {
     display: flex;
     flex-direction: column;
-    gap: var(--space-m);
+    gap: styles.$space-m;
 }
 
 .search {
     display: flex;
-    gap: var(--space-xl);
+    gap: styles.$space-xl;
 }
 
 .button {
@@ -86,12 +86,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--space-xl);
-    gap: var(--space-m);
+    padding: styles.$space-xl;
+    gap: styles.$space-m;
 }
 
 .error {
     button {
-        margin-top: var(--space-m);
+        margin-top: styles.$space-m;
     }
 }

@@ -1,8 +1,12 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
   ],
   "scripts": {
     "lint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
@@ -11,10 +15,21 @@
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "components": ["components/*"],
-      "config": ["config/*"],
-      "styles": ["styles/*"],
-      "utils": ["utils/*"]
+      "components": [
+        "components/*"
+      ],
+      "config": [
+        "config/*"
+      ],
+      "styles": [
+        "styles/*"
+      ],
+      "utils": [
+        "utils/*"
+      ],
+      "stores": [
+        "stores/*"
+      ]
     }
   }
 }

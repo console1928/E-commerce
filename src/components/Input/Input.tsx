@@ -20,14 +20,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       styles.input,
       {
         [styles['input--disabled']]: disabled,
-        [styles['input--withAfterSlot']]: afterSlot,
+        [styles['input--with-after-slot']]: afterSlot,
       },
       className
     );
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(event.target.value);
-    };
 
     return (
       <div className={inputClass}>
@@ -35,7 +31,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           type="text"
           value={value}
-          onChange={handleChange}
+          onChange={event => onChange(event.target.value)}
           disabled={disabled}
           className={styles.input__field}
           {...props}

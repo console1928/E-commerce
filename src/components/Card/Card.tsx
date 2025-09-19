@@ -43,7 +43,7 @@ const Card: React.FC<CardProps> = ({
     return (
         <div className={cardClass} onClick={onClick}>
             <Link to={url}>
-                <div className={styles.card__imageContainer}>
+                <div className={styles['card__image-container']}>
                     <img
                         src={image}
                         alt=""
@@ -60,23 +60,19 @@ const Card: React.FC<CardProps> = ({
                     )}
 
                     <div className={styles.card__text}>
-                        <h3 className={styles.card__title}>
-                            <Text tag='h3' view='p-20' weight='bold'>{title}</Text>
-                        </h3>
-                        <div className={styles.card__subtitle}>
-                            <Text tag='p' view='p-16' weight='normal'>{subtitle}</Text>
-                        </div>
+                        <Text className={styles.card__title} tag='h3' view='p-20' weight='bold'>{title}</Text>
+                        <Text className={styles.card__subtitle} tag='p' view='p-16' weight='normal'>{subtitle}</Text>
                     </div>
 
                     {(contentSlot || actionSlot) && (
                         <div className={styles.card__footer}>
                             {contentSlot && (
-                                <div className={styles.card__contentSlot}>
+                                <div className={styles['card__content-slot']}>
                                     {contentSlot}
                                 </div>
                             )}
                             {actionSlot && (
-                                <div className={styles.card__actionSlot}>
+                                <div className={styles['card__action-slot']}>
                                     {actionSlot}
                                 </div>
                             )}

@@ -1,14 +1,14 @@
-@import url('styles/variables.css');
+@use 'styles/variables' as styles;
 
 .input {
     position: relative;
     display: flex;
     align-items: center;
     width: 100%;
-    border: 1px solid var(--background);
+    border: 1px solid styles.$background;
 
     &:focus-within:not(.input--disabled) {
-        border: 1px solid var(--brand);
+        border: 1px solid styles.$brand;
     }
 
     &--disabled {
@@ -18,7 +18,7 @@
         }
     }
 
-    &--withAfterSlot {
+    &--with-after-slot {
         .input__field {
             padding-right: 48px;
         }
@@ -28,21 +28,21 @@
 .input__field {
     flex: 1;
     width: 100%;
-    padding: var(--space-m) var(--space-xs);
+    padding: styles.$space-m styles.$space-xs;
     border: none;
     outline: none;
-    background-color: var(--background);
+    background-color: styles.$background;
     font-size: 16px;
-    color: var(--text-primary);
+    color: styles.$text-primary;
 
     &::placeholder {
-        color: var(--text-secondary);
+        color: styles.$text-secondary;
     }
 }
 
 .input__afterSlot {
     position: absolute;
-    right: var(--space-xs);
+    right: styles.$space-xs;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
