@@ -1,91 +1,29 @@
-import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import ArrowRightIcon from 'components/icons/ArrowRightIcon';
 import Text from 'components/Text';
 import Button from 'components/Button';
 import Card from 'components/Card';
 import Loader from 'components/Loader';
-import { ProductType, ProductImage } from '../Products';
+import { productStore } from 'stores/product.store';
 import classes from './Product.module.scss';
 
-export type ApiProductResponse = {
-    data: ProductType;
-};
-
-export type ApiProductsResponse = {
-    data: ProductType[];
-};
-
-export type RelatedProduct = {
-    id: number;
-    title: string;
-    price: number;
-    productCategory: { title: string };
-    description: string;
-    images: ProductImage[];
-};
-
-const API_BASE_URL = 'https://front-school-strapi.ktsdev.ru/api/products';
-
-const Product = () => {
+const Product = observer(() => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const [product, setProduct] = useState<ProductType | null>(null);
-    const [relatedItems, setRelatedItems] = useState<RelatedProduct[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchProductData = useCallback(async () => {
-        if (!id) return;
-
-        try {
-            setLoading(true);
-            setError(null);
-
-            const [productResponse, productsResponse] = await Promise.all([
-                axios.get<ApiProductResponse>(`${API_BASE_URL}/${id}?populate[0]=images&populate[1]=productCategory`),
-                axios.get<ApiProductsResponse>(`${API_BASE_URL}?populate[0]=images&populate[1]=productCategory`),
-            ]);
-
-            const productData = productResponse.data.data;
-            const allProducts = productsResponse.data.data;
-
-            setProduct(productData);
-
-            const related = allProducts
-                .filter((item: ProductType) =>
-                    item.productCategory?.title === productData.productCategory?.title &&
-                    item.documentId !== productData.documentId
-                )
-                .slice(0, 3)
-                .map((item: ProductType): RelatedProduct => ({
-                    id: item.documentId,
-                    title: item.title,
-                    price: item.price,
-                    productCategory: item.productCategory,
-                    description: item.description,
-                    images: item.images
-                }));
-
-            setRelatedItems(related);
-        } catch (err) {
-            setError('Failed to load product data');
-            console.error('Error fetching product:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, [id]);
+    const { product, relatedItems, loading, error, fetchProductData } = productStore;
 
     useEffect(() => {
-        fetchProductData();
-    }, [fetchProductData]);
+        if (id) {
+            fetchProductData(id);
+        }
+    }, [id, fetchProductData]);
 
     const handleAddToCart = () => { };
-
     const handleBuyNow = () => { };
 
-    const getImageUrl = (image: ProductImage): string => {
+    const getImageUrl = (image: any): string => {
         return image.formats?.large?.url || image.url || '/placeholder-image.jpg';
     };
 
@@ -103,7 +41,7 @@ const Product = () => {
                 <Text view="p-20" color="primary">
                     {error}
                 </Text>
-                <Button onClick={fetchProductData}>Try Again</Button>
+                <Button onClick={() => id && fetchProductData(id)}>Try Again</Button>
             </div>
         );
     }
@@ -194,6 +132,6 @@ const Product = () => {
             </div>
         </div>
     );
-};
+});
 
 export default Product;
