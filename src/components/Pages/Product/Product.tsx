@@ -6,28 +6,32 @@ import Text from 'components/Text';
 import Button from 'components/Button';
 import Card from 'components/Card';
 import Loader from 'components/Loader';
-import { ProductType } from '../Products';
+import { ProductType, ProductImage } from '../Products';
 import classes from './Product.module.scss';
 
-export type Filter = {
-    category: { id: number };
+export type ApiProductResponse = {
+    data: ProductType;
 };
 
-type ProductData = {
+export type ApiProductsResponse = {
+    data: ProductType[];
+};
+
+export type RelatedProduct = {
     id: number;
     title: string;
     price: number;
-    category: { name: string };
+    productCategory: { title: string };
     description: string;
-    images: string[];
+    images: ProductImage[];
 };
 
-const API_BASE_URL = 'https://api.escuelajs.co/api/v1';
+const API_BASE_URL = 'https://front-school-strapi.ktsdev.ru/api/products';
 
 const Product = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const [product, setProduct] = useState<ProductType | null>(null);
-    const [relatedItems, setRelatedItems] = useState<ProductData[]>([]);
+    const [relatedItems, setRelatedItems] = useState<RelatedProduct[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -39,19 +43,31 @@ const Product = () => {
             setError(null);
 
             const [productResponse, productsResponse] = await Promise.all([
-                axios.get(`${API_BASE_URL}/products/${id}`),
-                axios.get(`${API_BASE_URL}/products`),
+                axios.get<ApiProductResponse>(`${API_BASE_URL}/${id}?populate[0]=images&populate[1]=productCategory`),
+                axios.get<ApiProductsResponse>(`${API_BASE_URL}?populate[0]=images&populate[1]=productCategory`),
             ]);
 
-            const productData = productResponse.data;
-            const allProducts = productsResponse.data;
+            const productData = productResponse.data.data;
+            const allProducts = productsResponse.data.data;
 
             setProduct(productData);
-            setRelatedItems(
-                allProducts
-                    .filter((item: Filter) => item.category.id === productData.category.id)
-                    .slice(0, 3)
-            );
+
+            const related = allProducts
+                .filter((item: ProductType) =>
+                    item.productCategory?.title === productData.productCategory?.title &&
+                    item.documentId !== productData.documentId
+                )
+                .slice(0, 3)
+                .map((item: ProductType): RelatedProduct => ({
+                    id: item.documentId,
+                    title: item.title,
+                    price: item.price,
+                    productCategory: item.productCategory,
+                    description: item.description,
+                    images: item.images
+                }));
+
+            setRelatedItems(related);
         } catch (err) {
             setError('Failed to load product data');
             console.error('Error fetching product:', err);
@@ -67,6 +83,10 @@ const Product = () => {
     const handleAddToCart = () => { };
 
     const handleBuyNow = () => { };
+
+    const getImageUrl = (image: ProductImage): string => {
+        return image.formats?.large?.url || image.url || '/placeholder-image.jpg';
+    };
 
     if (loading) {
         return (
@@ -120,7 +140,7 @@ const Product = () => {
                     <div className={classes.imageContainer}>
                         <img
                             className={classes.image}
-                            src={product.images[0]}
+                            src={getImageUrl(product.images[0])}
                             alt={product.title}
                             loading="lazy"
                         />
@@ -162,9 +182,9 @@ const Product = () => {
                                     className={classes.productItem}
                                     key={item.id}
                                     title={item.title}
-                                    image={item.images[0]}
+                                    image={getImageUrl(item.images[0])}
                                     subtitle={item.description}
-                                    captionSlot={item.category.name}
+                                    captionSlot={item.productCategory.title}
                                     contentSlot={`$${item.price}`}
                                     actionSlot={<Button>Add to cart</Button>}
                                 />

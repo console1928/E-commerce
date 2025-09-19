@@ -13,102 +13,157 @@ export type ProductData = {
     title: string;
     contentSlot: number;
     subTitle: string;
-    images: string[];
+    images: ProductImage[];
     captionSlot: string;
+    categoryId?: number;
+};
+
+export type ProductImage = {
+    id?: number;
+    url: string;
+    formats?: {
+        large?: {
+            url: string;
+        };
+        medium?: {
+            url: string;
+        };
+        small?: {
+            url: string;
+        };
+        thumbnail?: {
+            url: string;
+        };
+    };
 };
 
 export type ProductType = {
-    id: number;
+    documentId: number;
     title: string;
     price: number;
-    category: { name: string };
+    productCategory: { id: number; title: string };
     description: string;
-    images: string[];
+    images: ProductImage[];
 };
 
-export type FilterOption = Option & {
-    category: string;
+export type ApiResponse = {
+    data: ProductType[];
+};
+
+export type Category = {
+    id: number;
+    title: string;
+};
+
+export type CategoryOption = Option & {
+    categoryId: number;
 };
 
 const PRODUCTS_PER_PAGE = 9;
-const API_URL = 'https://api.escuelajs.co/api/v1/products';
+const BASE_API_URL = 'https://front-school-strapi.ktsdev.ru/api/products';
+const CATEGORIES_API_URL = 'https://front-school-strapi.ktsdev.ru/api/product-categories';
 
 function Products() {
     const [searchValue, setSearchValue] = useState<string>('');
-    const [products, setProducts] = useState<ProductData[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<ProductData[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isSearching, setIsSearching] = useState<boolean>(false);
+    const [isFiltering, setIsFiltering] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedFilters, setSelectedFilters] = useState<Option[]>([]);
+    const [selectedFilters, setSelectedFilters] = useState<CategoryOption[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
 
-    const categoryOptions = useMemo((): Option[] => {
-        const categories = Array.from(new Set(products.map(product => product.captionSlot)));
+    const categoryOptions = useMemo((): CategoryOption[] => {
         return categories.map(category => ({
-            key: category,
-            value: category,
+            key: category.id.toString(),
+            value: category.title,
+            categoryId: category.id
         }));
-    }, [products]);
+    }, [categories]);
 
-    const filterProducts = useCallback(() => {
-        let filtered = products;
-
-        if (searchValue) {
-            filtered = filtered.filter(product =>
-                product.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-                product.subTitle.toLowerCase().includes(searchValue.toLowerCase())
-            );
+    const fetchCategories = useCallback(async () => {
+        try {
+            const response = await axios.get(CATEGORIES_API_URL);
+            const categoriesData = response.data.data.map((cat: any) => ({
+                id: cat.id,
+                title: cat.title || 'Unnamed Category'
+            }));
+            setCategories(categoriesData);
+        } catch (err) {
+            console.error('Error fetching categories:', err);
         }
-
-        if (selectedFilters.length > 0) {
-            const selectedCategories = selectedFilters.map(filter => filter.value);
-            filtered = filtered.filter(product =>
-                selectedCategories.includes(product.captionSlot)
-            );
-        }
-
-        setFilteredProducts(filtered);
-        setCurrentPage(1);
-    }, [products, searchValue, selectedFilters]);
-
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-
-                const response = await axios.get<ProductType[]>(API_URL, {
-                    timeout: 10000,
-                });
-
-                const formattedProducts: ProductData[] = response.data.map((raw: ProductType) => ({
-                    id: raw.id,
-                    title: raw.title,
-                    contentSlot: raw.price,
-                    captionSlot: raw.category.name,
-                    images: raw.images.filter(img => img),
-                    subTitle: raw.description,
-                }));
-
-                setProducts(formattedProducts);
-                setFilteredProducts(formattedProducts);
-            } catch (err) {
-                setError(axios.isAxiosError(err)
-                    ? `Failed to load products: ${err.message}`
-                    : 'An unexpected error occurred'
-                );
-                console.error('Error fetching products:', err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchProducts();
     }, []);
 
+    const fetchProducts = useCallback(async (searchTerm: string = '', categoryIds: number[] = []) => {
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            let apiUrl = `${BASE_API_URL}?populate[0]=images&populate[1]=productCategory`;
+
+            if (searchTerm.trim()) {
+                apiUrl += `&filters[title][$containsi]=${encodeURIComponent(searchTerm)}`;
+            }
+
+            if (categoryIds.length > 0) {
+                categoryIds.forEach((categoryId, index) => {
+                    apiUrl += `&filters[productCategory][id][$in][${index}]=${categoryId}`;
+                });
+            }
+
+            const response = await axios.get<ApiResponse>(apiUrl, {
+                timeout: 10000,
+            });
+
+            const formattedProducts: ProductData[] = response.data.data.map((raw: ProductType) => ({
+                id: raw.documentId,
+                title: raw.title,
+                contentSlot: raw.price,
+                captionSlot: raw.productCategory.title,
+                categoryId: raw.productCategory.id,
+                images: raw.images,
+                subTitle: raw.description,
+            }));
+
+            setFilteredProducts(formattedProducts);
+        } catch (err) {
+            setError(axios.isAxiosError(err)
+                ? `Failed to load products: ${err.message}`
+                : 'An unexpected error occurred'
+            );
+            console.error('Error fetching products:', err);
+        } finally {
+            setIsLoading(false);
+            setIsSearching(false);
+            setIsFiltering(false);
+        }
+    }, []);
+
+    const handleSearch = useCallback(() => {
+        if (searchValue.trim()) {
+            setIsSearching(true);
+            const categoryIds = selectedFilters.map(filter => filter.categoryId);
+            fetchProducts(searchValue, categoryIds);
+        } else {
+            const categoryIds = selectedFilters.map(filter => filter.categoryId);
+            fetchProducts('', categoryIds);
+        }
+    }, [searchValue, selectedFilters, fetchProducts]);
+
+    const handleFilterChange = useCallback((filters: Option[]) => {
+        const categoryFilters = filters as CategoryOption[];
+        setSelectedFilters(categoryFilters);
+
+        setIsFiltering(true);
+        const categoryIds = categoryFilters.map(filter => filter.categoryId);
+        fetchProducts(searchValue, categoryIds);
+    }, [searchValue, fetchProducts]);
+
     useEffect(() => {
-        filterProducts();
-    }, [filterProducts]);
+        fetchCategories();
+        fetchProducts();
+    }, [fetchCategories, fetchProducts]);
 
     const paginatedProducts = useMemo(() => {
         const lastIndex = currentPage * PRODUCTS_PER_PAGE;
@@ -122,10 +177,6 @@ function Products() {
         setSearchValue(value);
     };
 
-    const handleFilterChange = (filters: Option[]) => {
-        setSelectedFilters(filters);
-    };
-
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -133,6 +184,16 @@ function Products() {
 
     const handleRetry = () => {
         window.location.reload();
+    };
+
+    const getImageUrl = (image: ProductImage): string => {
+        return image.formats?.large?.url || image.url || '/placeholder-image.jpg';
+    };
+
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            handleSearch();
+        }
     };
 
     const renderContent = () => {
@@ -184,7 +245,7 @@ function Products() {
                             className={classes.item}
                             key={product.id}
                             title={product.title}
-                            image={product.images[0] || '/placeholder-image.jpg'}
+                            image={getImageUrl(product.images[0])}
                             subtitle={product.subTitle}
                             captionSlot={product.captionSlot}
                             contentSlot={`$${product.contentSlot}`}
@@ -224,13 +285,14 @@ function Products() {
                     <Input
                         value={searchValue}
                         onChange={handleSearchChange}
+                        onKeyPress={handleKeyPress}
                         placeholder="Search Product"
                         disabled={isLoading}
                     />
                     <Button
                         className={classes.button}
-                        loading={isLoading}
-                        onClick={filterProducts}
+                        loading={isLoading || isSearching || isFiltering}
+                        onClick={handleSearch}
                     >
                         Find Now
                     </Button>
@@ -239,10 +301,10 @@ function Products() {
                 <MultiDropdown
                     className={classes.dropDown}
                     value={selectedFilters}
-                    getTitle={(filters) => filters.length > 0 ? `${filters.length} selected` : 'Filter'}
+                    getTitle={(filters) => filters.length > 0 ? `${filters.map(filter => filter.value).join(', ')}` : 'Filter'}
                     onChange={handleFilterChange}
                     options={categoryOptions}
-                    disabled={isLoading || products.length === 0}
+                    disabled={isLoading || categories.length === 0}
                 />
             </div>
 
