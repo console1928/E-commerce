@@ -1,0 +1,35 @@
+@import url('styles/variables.css');
+
+.checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    width: 40px;
+    height: 40px;
+    background-color: var(--background);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(.checkbox--disabled) {
+        border: 1px solid var(--brand);
+    }
+
+    &--disabled {
+        background-color: rgba(255, 255, 255, 0.5);
+        cursor: not-allowed;
+
+        .checkbox__custom {
+            opacity: 0.8;
+        }
+    }
+}
+
+.checkbox__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
